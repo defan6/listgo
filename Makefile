@@ -12,7 +12,7 @@ env-down:
 env-cleanup:
 	@read -p "Clean data? [y/N]: " ans; \
 	if [ "$$ans" = "y" ]; then \
-		docker compose down go-list-postgres && \
+		docker compose down go-list-postgres go-list-port-forwarder && \
 		rm -rf out/pgdata && \
 		echo "Done"; \
 	fi;
@@ -43,5 +43,10 @@ migrate-action:
 		-path ./migrations \
 		-database postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@go-list-postgres:5432/${POSTGRES_DB}?sslmode=disable \
 		$(action)
+golist-run:
+	@export LOGGER_FOLDER=${PROJECT_ROOT}/out/logs && \
+	export POSTGRES_HOST=127.0.0.1 \
+	go mod tidy && \
+	go run cmd/golist/main.go
 
 
