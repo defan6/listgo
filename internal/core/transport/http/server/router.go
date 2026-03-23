@@ -1,0 +1,44 @@
+package core_http_server
+
+import (
+	"fmt"
+	"net/http"
+
+	core_http_middlware "github.com/defan6/listgo/internal/core/transport/http/middleware"
+)
+
+type ApiVersion string
+
+const (
+	ApiVersion1 = ApiVersion("v1")
+	ApiVersion2 = ApiVersion("v2")
+	ApiVersion3 = ApiVersion("v3")
+)
+
+type APIVersionRouter struct {
+	*http.ServeMux
+	apiVersion ApiVersion
+	middleware []core_http_middlware.Middleware
+}
+
+func NewAPIVersionRouter(
+	apiVersion ApiVersion,
+	middleware ...core_http_middlware.Middleware,
+) *APIVersionRouter {
+	return &APIVersionRouter{
+		ServeMux:   http.NewServeMux(),
+		middleware: middleware,
+		apiVersion: apiVersion,
+	}
+}
+
+func (r *APIVersionRouter) WithMiddleware() http.Handler {
+	return core_http_middlware.ChainMiddleware(r, r.middleware...)
+}
+
+func (r *APIVersionRouter) Register(routes ...Route) {
+	for _, route := range routes {
+		pattern := fmt.Sprintf("%s %s", route.Method, route.Path)
+		r.Handle(pattern, route.WithMiddleware())
+	}
+}
