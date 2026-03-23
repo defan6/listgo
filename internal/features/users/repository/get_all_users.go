@@ -1,4 +1,4 @@
-package users_repository_postgres
+package repository
 
 import (
 	"context"
@@ -12,14 +12,15 @@ func (r *UsersRepository) GetAllUsers(ctx context.Context, limit *int, offset *i
 	ctxOpTimeout, cancel := context.WithTimeout(ctx, r.pool.OpTimeout())
 	defer cancel()
 	query := `
-		SELECT * FROM golist.users
+		SELECT * 
+		FROM golist.users
 		LIMIT $1
-		OFFSET $2
+		OFFSET $2;
 		`
-
+	fmt.Printf("DEBUG: limit=%v, offset=%v\n", limit, offset)
 	rows, err := r.pool.Query(ctxOpTimeout, query, limit, offset)
 	if err != nil {
-		return nil, fmt.Errorf("get users with filters: limit = %d, offset = %d : %w", limit, offset, err)
+		return nil, fmt.Errorf("get users with filters: %w", err)
 	}
 
 	var userModels []UserModel

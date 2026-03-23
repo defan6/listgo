@@ -1,4 +1,4 @@
-package users_repository_postgres
+package repository
 
 import (
 	"context"
@@ -20,7 +20,7 @@ func (r *UsersRepository) PatchUser(ctx context.Context, id int, user core_domai
 			phone_number = $2,
 			version = version + 1
 		WHERE id=$3 AND version=$4
-		RETURNING id, version, full_name, phone_number
+		RETURNING id, version, full_name, phone_number;
 	`
 	var userModel UserModel
 	err := r.pool.QueryRow(ctxWithOpTimeout, query, user.FullName, user.PhoneNumber, id, user.Version).

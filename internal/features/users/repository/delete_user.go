@@ -1,4 +1,4 @@
-package users_repository_postgres
+package repository
 
 import (
 	"context"
@@ -12,7 +12,9 @@ func (r *UsersRepository) DeleteUser(ctx context.Context, id int) error {
 	defer cancel()
 
 	query := `
-		DELETE FROM golist.users WHERE id=$1
+		DELETE 
+		FROM golist.users
+		WHERE id=$1;
 		`
 	commandTag, err := r.pool.Exec(ctxWithOpTimeout, query, id)
 	if err != nil {

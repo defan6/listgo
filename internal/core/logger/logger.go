@@ -11,13 +11,23 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
+type loggerContextKey struct{}
+
+var (
+	loggerKey = loggerContextKey{}
+)
+
 type Logger struct {
 	*zap.Logger
 	file *os.File
 }
 
+func ToContext(ctx context.Context, logger *Logger) context.Context {
+	return context.WithValue(ctx, loggerKey, logger)
+}
+
 func FromContext(ctx context.Context) *Logger {
-	l, ok := ctx.Value("log").(*Logger)
+	l, ok := ctx.Value(loggerKey).(*Logger)
 	if !ok {
 		panic("No logger in context")
 	}

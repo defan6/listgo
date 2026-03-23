@@ -1,4 +1,4 @@
-package users_repository_postgres
+package repository
 
 import core_domain "github.com/defan6/listgo/internal/core/domain"
 

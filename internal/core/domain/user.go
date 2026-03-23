@@ -5,6 +5,7 @@ import (
 	"regexp"
 
 	core_errors "github.com/defan6/listgo/internal/core/errors"
+	users_transport_http "github.com/defan6/listgo/internal/features/users/transport/http"
 )
 
 type User struct {
@@ -54,6 +55,16 @@ func (u *User) Validate() error {
 type UserPatch struct {
 	FullName    Nullable[string]
 	PhoneNumber Nullable[string]
+}
+
+func NewUserPatch(
+	fullName Nullable[string],
+	phoneNumber Nullable[string],
+) UserPatch {
+	return UserPatch{
+		FullName:    fullName,
+		PhoneNumber: phoneNumber,
+	}
 }
 
 func (u *UserPatch) Validate() error {

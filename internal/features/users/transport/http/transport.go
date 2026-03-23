@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	core_domain "github.com/defan6/listgo/internal/core/domain"
+	core_http_middlware "github.com/defan6/listgo/internal/core/transport/http/middleware"
 	core_http_server "github.com/defan6/listgo/internal/core/transport/http/server"
 )
 
@@ -39,6 +40,9 @@ func (h *UsersHTTPHandler) Routes() []core_http_server.Route {
 			Method:  http.MethodGet,
 			Path:    "/users",
 			Handler: h.GetAllUsers,
+			Middleware: []core_http_middlware.Middleware{
+				core_http_middlware.Dummy(),
+			},
 		},
 		{
 			Method:  http.MethodGet,

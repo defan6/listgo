@@ -7,7 +7,7 @@ import (
 	core_domain "github.com/defan6/listgo/internal/core/domain"
 	core_errors "github.com/defan6/listgo/internal/core/errors"
 	core_logger "github.com/defan6/listgo/internal/core/logger"
-	transport_http_request "github.com/defan6/listgo/internal/core/transport/http/request"
+	core_transport_http_request "github.com/defan6/listgo/internal/core/transport/http/request"
 	core_http_response "github.com/defan6/listgo/internal/core/transport/http/response"
 )
 
@@ -20,7 +20,7 @@ func (h *UsersHTTPHandler) CreateUser(rw http.ResponseWriter, r *http.Request) {
 
 	var createUserRequest CreateUserRequest
 
-	if err := transport_http_request.DecodeAndValidateRequest(r, &createUserRequest); err != nil {
+	if err := core_transport_http_request.DecodeAndValidateRequest(r, &createUserRequest); err != nil {
 		responseHandler.ErrorResponse(fmt.Errorf("validate request: %v, %w", err, core_errors.ErrBadRequest), "failed to decode and validate HTTP request")
 		return
 	}

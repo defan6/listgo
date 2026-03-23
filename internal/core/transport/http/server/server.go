@@ -22,30 +22,28 @@ type HTTPServer struct {
 func NewHTTPServer(
 	config Config,
 	log *core_logger.Logger,
-	middleware ...core_http_middlware.Middleware,
 ) *HTTPServer {
 	return &HTTPServer{
-		mux:        http.NewServeMux(),
-		middleware: middleware,
-		config:     config,
-		log:        log,
+		mux:    http.NewServeMux(),
+		config: config,
+		log:    log,
 	}
 }
 
-func (h *HTTPServer) RegisterAPIRouters(routers ...*APIVersionRouter) {
+func (s *HTTPServer) RegisterAPIRouters(routers ...*APIVersionRouter) {
 	for _, router := range routers {
 		prefix := "/api/" + string(router.apiVersion)
-		h.mux.Handle(
+		s.mux.Handle(
 			prefix+"/",
-			http.StripPrefix(prefix, router),
+			http.StripPrefix(prefix, router.WithMiddleware()),
 		)
 	}
 }
 
-func (h *HTTPServer) Run(ctx context.Context) error {
-	mux := core_http_middlware.ChainMiddleware(h.mux, h.middleware...)
+func (s *HTTPServer) Run(ctx context.Context) error {
+	mux := core_http_middlware.ChainMiddleware(s.mux, s.middleware...)
 	server := &http.Server{
-		Addr:    h.config.Addr,
+		Addr:    s.config.Addr,
 		Handler: mux,
 	}
 
@@ -53,7 +51,7 @@ func (h *HTTPServer) Run(ctx context.Context) error {
 	go func() {
 		defer close(ch)
 
-		h.log.Warn("start HTTP server", zap.String("addr", h.config.Addr))
+		s.log.Warn("start HTTP server", zap.String("addr", s.config.Addr))
 		err := server.ListenAndServe()
 
 		if err != nil {
@@ -69,7 +67,7 @@ func (h *HTTPServer) Run(ctx context.Context) error {
 			return fmt.Errorf("listen and serve HTTP: %w", err)
 		}
 	case <-ctx.Done():
-		shutdownContext, cancel := context.WithTimeout(context.Background(), h.config.ShutdownTimeout)
+		shutdownContext, cancel := context.WithTimeout(context.Background(), s.config.ShutdownTimeout)
 		defer cancel()
 
 		if err := server.Shutdown(shutdownContext); err != nil {
@@ -78,7 +76,7 @@ func (h *HTTPServer) Run(ctx context.Context) error {
 			return fmt.Errorf("shutdown HTTP server: %w", err)
 		}
 
-		h.log.Warn("HTTP server stopped")
+		s.log.Warn("HTTP server stopped")
 	}
 
 	return nil
